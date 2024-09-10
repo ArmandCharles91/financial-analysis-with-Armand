@@ -1,0 +1,74 @@
+ +*In[1]:*+
+[source, ipython3]
+----
+import time
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Initial parameters for a barrier option
+S0 = 90  # Stock price
+K = 90  # Strike price
+T = 2  # Time to maturity in years
+H = 105  # Up-and-out barrier value
+r = 0.02  # Risk-free rate
+vol = 0.2  # Volatility parameter
+N = 100  # Number of time steps
+M = 1000  # Number of simulations
+
+start_time = time.time()
+
+# Computation of constants
+dt = T / N
+nudt = (r - 0.5 * vol**2) * dt
+volsdt = vol * np.sqrt(dt)
+erdt = np.exp(r * dt)
+
+# Variables to store cumulative results
+sum_CT = 0
+sum_CT2 = 0
+
+# Monte Carlo simulation
+for i in range(M):
+    Barrier = False
+    St = S0
+
+    for j in range(N):
+        epsilon = np.random.normal()
+        Stn = St * np.exp(nudt + volsdt * epsilon)
+        St = Stn
+
+        if St >= H:
+            Barrier = True
+            break
+    
+    if Barrier:
+        CT = 0
+    else:
+        CT = max(0, St - K)  # Option payoff for a call option
+
+    sum_CT += CT
+    sum_CT2 += CT * CT
+
+# Expectation and Standard Error
+C0 = np.exp(-r * T) * sum_CT / M
+sigma = np.sqrt((sum_CT2 - sum_CT * sum_CT / M) / (M - 1)) * np.exp(-r * T)
+SE = sigma / np.sqrt(M)
+
+print("Call value is ${0} with SE +/- {1}".format(np.round(C0, 2), np.round(SE, 3)))
+print("Computation time is:", round(time.time() - start_time, 2), "seconds")
+
+----
+
+
++*Out[1]:*+
+----
+Call value is $0.33 with SE +/- 0.049
+Computation time is: 0.42 seconds
+----
+
+
++*In[ ]:*+
+[source, ipython3]
+----
+
+----
