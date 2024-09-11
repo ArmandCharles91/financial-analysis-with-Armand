@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
+#This Python script retrieves historical stock data for BlackRock (BLK) and performs a series of statistical analyses, including log return calculations, descriptive statistics, and predictive modeling. The main goal is to understand the behavior of BlackRock's stock returns from 2019 to 2024 using statistical and time series techniques.Key Features
+
+
+
 
 # In[2]:
 
