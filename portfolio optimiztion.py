@@ -4,7 +4,7 @@
 # In[ ]:
 
 
-# Importing required libraries
+#python libraries
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,15 +12,15 @@ import yfinance as yf
 import datetime as dt
 from scipy.optimize import minimize
 
-# Step 1: Define tickers and time range
+# Stock tickers
 tickers = ['SPY', 'BND', 'QQQ', 'GLD', 'VTI']
 
-# Set the end date to today
+# start and end time determination
 end_date = dt.datetime.today()
 start_date = end_date - dt.timedelta(days=5*365)  # 5 years back
 print("Start Date:", start_date)
 
-# Fetching adjusted close prices
+# adjusted close prices
 adj_close_def = pd.DataFrame()
 for ticker in tickers:
     data = yf.download(ticker, start=start_date, end=end_date)
@@ -29,15 +29,15 @@ for ticker in tickers:
 print("Adjusted Close Prices:")
 print(adj_close_def.head())
 
-# Step 2: Calculate log returns
+# log norm returns
 log_returns = np.log(adj_close_def / adj_close_def.shift(1)).dropna()
 
-# Step 3: Determine the covariance matrix
+# cov matrix for log returns
 cov_matrix = log_returns.cov() * 252  # Annualize the covariance matrix
 print("Covariance Matrix:")
 print(cov_matrix)
 
-# Step 4: Define key portfolio functions
+# standard deviation
 def standard_deviation(weights, cov_matrix):
     variance = weights.T @ cov_matrix @ weights
     return np.sqrt(variance)
@@ -48,7 +48,7 @@ def expected_return(weights, log_returns):
 def sharpe_ratio(weights, log_returns, cov_matrix, risk_free_rate):
     return (expected_return(weights, log_returns) - risk_free_rate) / standard_deviation(weights, cov_matrix)
 
-# Step 5: Portfolio optimization
+# optimization process
 # Objective function: Maximize negative Sharpe ratio (since minimize is used)
 def negative_sharpe_ratio(weights, log_returns, cov_matrix, risk_free_rate):
     return -sharpe_ratio(weights, log_returns, cov_matrix, risk_free_rate)
@@ -59,7 +59,7 @@ constraints = {'type': 'eq', 'fun': lambda weights: np.sum(weights) - 1}  # Weig
 bounds = [(0, 0.5) for _ in range(len(tickers))]  # Each weight between 0 and 0.5
 initial_weights = np.ones(len(tickers)) / len(tickers)  # Equal weight initialization
 
-# Optimize the portfolio
+# method for result
 result = minimize(
     negative_sharpe_ratio,
     initial_weights,
@@ -73,7 +73,7 @@ result = minimize(
 optimal_weights = result.x
 print("Optimal Weights:", optimal_weights)
 
-# Step 6: Calculate portfolio metrics
+# portfolio weights 
 portfolio_return = expected_return(optimal_weights, log_returns)
 portfolio_volatility = standard_deviation(optimal_weights, cov_matrix)
 portfolio_sharpe = sharpe_ratio(optimal_weights, log_returns, cov_matrix, risk_free_rate)
@@ -82,7 +82,7 @@ print("Portfolio Annual Return:", portfolio_return)
 print("Portfolio Volatility:", portfolio_volatility)
 print("Portfolio Sharpe Ratio:", portfolio_sharpe)
 
-# Step 7: Plot the efficient frontier
+# plotting
 def portfolio_metrics(weights):
     return (
         standard_deviation(weights, cov_matrix),
@@ -94,7 +94,7 @@ random_portfolios = 5000
 random_weights = [np.random.dirichlet(np.ones(len(tickers))) for _ in range(random_portfolios)]
 portfolios = np.array([portfolio_metrics(w) for w in random_weights])
 
-# Extract volatility and return
+# transpose vol and returns
 volatilities, returns = portfolios.T
 
 # Plot
