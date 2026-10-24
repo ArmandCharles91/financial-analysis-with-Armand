@@ -1,0 +1,22 @@
+#loan parameters  
+principal=5000 #principal amount 
+annual_interest_rates = 0.03   # annual interest rate
+loan_term_months = 120 # loan terms in months
+#monthly interest rates
+monthly_interest_rate= annual_interest_rates/12
+#calculate the monthly payment 
+monthly_payment = (principal *monthly_interest_rate)/(1-(1+monthly_interest_rate)**(-loan_term_months))
+#print the header of the amortization table
+print(f"{'Month':<8}{'Beginning balance':<20}{'Payment':<12}{'Interest':<12}{'Principa':<12}{'Ending balance':<15}")
+ending_balance=principal
+for month in range (1,loan_term_months+1):
+  beginning_balance=ending_balance
+  interest_payment =beginning_balance*monthly_interest_rate
+  principal_payment= monthly_payment-interest_payment
+  ending_balance= beginning_balance -principal_payment
+  #avoiding tiny floating residuals in the final month:
+  if month == loan_term_months:
+        principal_payment = beginning_balance
+        monthly_payment = principal_payment + interest_payment
+        ending_balance = 0.0
+  print(f"{month:<8}{beginning_balance:<20.2f}{monthly_payment:<12.2f}{interest_payment:<12.2f}{principal_payment:<12.2f}{ending_balance:<15.2f}")
